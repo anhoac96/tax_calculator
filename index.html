@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Calculator</title>
+  <link rel="icon" href="favicon.ico">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="card">
+      <p class="eyebrow">Cloud Native Final Project</p>
+      <h1>Tax Calculator</h1>
+      <p class="intro">Enter a pre-tax amount and a tax rate to calculate the tax due and final total.</p>
+      <label for="amount">Amount</label>
+      <input id="amount" type="number" min="0" step="0.01" placeholder="100.00">
+      <label for="rate">Tax rate (%)</label>
+      <input id="rate" type="number" min="0" step="0.01" placeholder="10">
+      <button id="calculate-btn" type="button">Calculate</button>
+      <div id="result" class="result">Tax: $0.00 | Total: $0.00</div>
+    </section>
+  </main>
+  <script src="taxCalculator.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

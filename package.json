@@ -1,0 +1,13 @@
+{
+  "name": "tax-calculator",
+  "version": "1.0.0",
+  "description": "Tax Calculator final project for Cloud Native, DevOps, Agile, and NoSQL",
+  "main": "taxCalculator.js",
+  "scripts": {
+    "test": "jasmine",
+    "start": "npx http-server . -p 8080"
+  },
+  "devDependencies": {
+    "jasmine": "^5.1.0"
+  }
+}

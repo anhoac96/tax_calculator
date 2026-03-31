@@ -1,0 +1,80 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: clone-repo
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+      default: main
+  workspaces:
+    - name: output
+  steps:
+    - name: clone
+      image: alpine/git:2.45.2
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        git clone "$(params.repo-url)" "$(workspaces.output.path)/source"
+        cd "$(workspaces.output.path)/source"
+        git checkout "$(params.revision)"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run-unit-tests
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: install-and-test
+      image: node:20-alpine
+      workingDir: $(workspaces.source.path)/source
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        npm install
+        npx jasmine
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-push-image
+spec:
+  params:
+    - name: image-reference
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:v1.37.0
+      securityContext:
+        privileged: true
+      workingDir: $(workspaces.source.path)/source
+      script: |
+        #!/usr/bin/env sh
+        set -eu
+        buildah bud -t "$(params.image-reference)" .
+        buildah push "$(params.image-reference)"
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-image
+spec:
+  params:
+    - name: image-reference
+      type: string
+    - name: app-name
+      type: string
+      default: tax-calculator
+  steps:
+    - name: deploy
+      image: icr.io/continuous-delivery/pipeline/pipeline-base-image:latest
+      script: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+        ibmcloud ce application create --name "$(params.app-name)" --image "$(params.image-reference)" --port 80 --cpu 0.25 --memory 0.5G
